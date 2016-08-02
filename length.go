@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 // Lengther can be implemented by a value to override the default length
@@ -196,12 +197,40 @@ func jsonLenFloat(v float64) (n int) {
 }
 
 func jsonLenString(s string) (n int) {
-	for _, c := range s {
-		switch c {
+	if len(s) < 100 {
+		// This is an optimization for short strings, most of them will not
+		// contain any escaped bytes and performances won't suffer from checking
+		// the string a couple of times because it will fit into a couple of
+		// cachelines.
+		const escapedBytes = "/\"\\\n\t\r\v\b\f"
+
+		switch len(s) {
+		case 0:
+		case 1:
+			for i := range escapedBytes {
+				if s[0] == escapedBytes[i] {
+					goto slowPath
+				}
+			}
+		default:
+			for i := range escapedBytes {
+				if strings.IndexByte(s, escapedBytes[i]) >= 0 {
+					goto slowPath
+				}
+			}
+		}
+
+		return 2 + len(s)
+	}
+
+slowPath:
+	for i := range s {
+		switch s[i] {
 		case '\n', '\t', '\r', '\v', '\b', '\f', '\\', '/', '"':
 			n++
 		}
 	}
+
 	return n + 2 + len(s)
 }
 
@@ -256,25 +285,31 @@ func jsonLenMap(v reflect.Value) (n int, err error) {
 func jsonLenStruct(t reflect.Type, v reflect.Value) (n int, err error) {
 	var c int
 
-	for i, j := 0, v.NumField(); i != j; i++ {
-		tag := ParseStructField(t.Field(i))
+	for i, j := 0, t.NumField(); i != j; i++ {
+		ft := t.Field(i)
+
+		if len(ft.PkgPath) != 0 && !ft.Anonymous { // unexported
+			continue
+		}
+
+		tag := ParseStructField(ft)
 
 		if tag.Skip {
 			continue
 		}
 
-		field := v.Field(i)
+		fv := v.Field(i)
 
-		if tag.Omitempty && isEmptyValue(field) {
+		if tag.Omitempty && isEmptyValue(fv) {
 			continue
+		}
+
+		if c, err = Length(fv.Interface()); err != nil {
+			return
 		}
 
 		if n != 0 {
 			n++
-		}
-
-		if c, err = Length(field.Interface()); err != nil {
-			return
 		}
 
 		n += jsonLenString(tag.Name) + c + 1
