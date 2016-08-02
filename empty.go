@@ -2,9 +2,9 @@ package jutil
 
 import "reflect"
 
-// IsEmptyTells is returns true if the value given as argument would be
-// considered empty by the standard json package, and therefore not serialized
-// if `omitempty` is set on a struct field with this value.
+// IsEmptyValue returns true if the value given as argument would be considered
+// empty by the standard json package, and therefore not serialized if
+// `omitempty` is set on a struct field with this value.
 func IsEmptyValue(v interface{}) bool {
 	return isEmptyValue(reflect.ValueOf(v))
 }
