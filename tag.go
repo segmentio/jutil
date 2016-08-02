@@ -7,7 +7,6 @@ import (
 
 // Tag represents the result of parsing the json tag of a struct field.
 type Tag struct {
-
 	// Name is the field name that should be used when serializing JSON.
 	Name string
 
@@ -21,16 +20,16 @@ type Tag struct {
 // ParseStructField parses the tag of a struct field that may or may not
 // have a `json` tag set, returing the result as a Tag field.
 func ParseStructField(f reflect.StructField) Tag {
-	t := ParseStructTag(f.Tag.Get("json"))
+	t := ParseTag(f.Tag.Get("json"))
 	if len(t.Name) == 0 {
 		t.Name = f.Name
 	}
 	return t
 }
 
-// ParseStructTag parses a raw json tag obtained from a struct field,
+// ParseTag parses a raw json tag obtained from a struct field,
 // returining the results as a Tag value.
-func ParseStructTag(tag string) Tag {
+func ParseTag(tag string) Tag {
 	name, tag := parseNextTagToken(tag)
 	token, _ := parseNextTagToken(tag)
 	return Tag{

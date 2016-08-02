@@ -10,7 +10,6 @@ import (
 // Lengther can be implemented by a value to override the default length
 // deduction algorithm implemented by Length.
 type Lengther interface {
-
 	// LengthJSON returns the length of the value once serialized to JSON.
 	LengthJSON() int
 }
