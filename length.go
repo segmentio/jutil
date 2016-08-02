@@ -73,6 +73,12 @@ func Length(v interface{}) (n int, err error) {
 	case []byte:
 		n = jsonLenBytes(x)
 
+	case map[string]interface{}:
+		n, err = jsonLenMapStringInterface(x)
+
+	case []interface{}:
+		n, err = jsonLenSliceInterface(x)
+
 	case Lengther:
 		n = x.LengthJSON()
 
@@ -98,7 +104,7 @@ func Length(v interface{}) (n int, err error) {
 
 func jsonLenV(v reflect.Value) (n int, err error) {
 	if !v.IsValid() {
-		err = &json.UnsupportedValueError{v, "the value is invalid"}
+		err = &json.UnsupportedValueError{Value: v, Str: "the value is invalid"}
 		return
 	}
 
@@ -142,7 +148,7 @@ func jsonLenV(v reflect.Value) (n int, err error) {
 		n, err = jsonLenArray(v)
 
 	default:
-		err = &json.UnsupportedTypeError{t}
+		err = &json.UnsupportedTypeError{Type: t}
 	}
 
 	return
@@ -272,6 +278,42 @@ func jsonLenStruct(t reflect.Type, v reflect.Value) (n int, err error) {
 		}
 
 		n += jsonLenString(tag.Name) + c + 1
+	}
+
+	n += 2
+	return
+}
+
+func jsonLenSliceInterface(s []interface{}) (n int, err error) {
+	var c int
+
+	for _, v := range s {
+		if c, err = Length(v); err != nil {
+			return
+		}
+		n += c
+	}
+
+	if c = len(s); c > 1 {
+		n += c - 1
+	}
+
+	n += 2
+	return
+}
+
+func jsonLenMapStringInterface(m map[string]interface{}) (n int, err error) {
+	var c int
+
+	for k, v := range m {
+		if c, err = Length(v); err != nil {
+			return
+		}
+		n += jsonLenString(k) + c + 1
+	}
+
+	if c = len(m); c > 1 {
+		n += c - 1
 	}
 
 	n += 2
