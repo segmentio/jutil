@@ -104,7 +104,7 @@ func Length(v interface{}) (n int, err error) {
 
 func jsonLenV(v reflect.Value) (n int, err error) {
 	if !v.IsValid() {
-		err = &json.UnsupportedValueError{v, "the value is invalid"}
+		err = &json.UnsupportedValueError{Value: v, Str: "the value is invalid"}
 		return
 	}
 
@@ -148,7 +148,7 @@ func jsonLenV(v reflect.Value) (n int, err error) {
 		n, err = jsonLenArray(v)
 
 	default:
-		err = &json.UnsupportedTypeError{t}
+		err = &json.UnsupportedTypeError{Type: t}
 	}
 
 	return
