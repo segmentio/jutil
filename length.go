@@ -252,7 +252,7 @@ func jsonLenStruct(t reflect.Type, v reflect.Value) (n int, err error) {
 	var c int
 
 	for i, j := 0, v.NumField(); i != j; i++ {
-		tag := ParseJsonStructField(t.Field(i))
+		tag := ParseStructField(t.Field(i))
 
 		if tag.Skip {
 			continue

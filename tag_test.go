@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestParseJsonStructTag(t *testing.T) {
+func TestParseStructTag(t *testing.T) {
 	tests := []struct {
 		tag string
 		res Tag
@@ -37,13 +37,13 @@ func TestParseJsonStructTag(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if res := ParseJsonStructTag(test.tag); res != test.res {
+		if res := ParseStructTag(test.tag); res != test.res {
 			t.Errorf("%s: %#v != %#v", test.tag, test.res, res)
 		}
 	}
 }
 
-func TestParseJsonStructField(t *testing.T) {
+func TestParseStructField(t *testing.T) {
 	tests := []struct {
 		val interface{}
 		res Tag
@@ -73,7 +73,7 @@ func TestParseJsonStructField(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if res := ParseJsonStructField(reflect.TypeOf(test.val).Field(0)); res != test.res {
+		if res := ParseStructField(reflect.TypeOf(test.val).Field(0)); res != test.res {
 			t.Errorf("%s: %#v != %#v", test.val, test.res, res)
 		}
 	}
