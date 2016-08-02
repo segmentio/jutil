@@ -24,6 +24,18 @@ func TestLength(t *testing.T) {
 		-42,
 		0.1234,
 
+		int(0),
+		int8(10),
+		int16(100),
+		int32(1000),
+		int64(10000),
+
+		uint(0),
+		uint8(10),
+		uint16(100),
+		uint32(1000),
+		uint64(10000),
+
 		"",
 		"Hello World!",
 		"Hello\nWorld!",
