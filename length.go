@@ -16,7 +16,7 @@ type Lengther interface {
 
 // Length computes the length of the JSON representation of a value of
 // arbitrary type, it's ~2x faster than serializing the content with the
-// standard json packageg and avoid the extra memory allocations.
+// standard json package and avoid the extra memory allocations.
 func Length(v interface{}) (n int, err error) {
 	var b []byte
 
