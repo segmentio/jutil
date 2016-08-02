@@ -284,23 +284,12 @@ func jsonLenMap(v reflect.Value) (n int, err error) {
 
 func jsonLenStruct(t reflect.Type, v reflect.Value) (n int, err error) {
 	var c int
+	var s = structCache.Lookup(t)
 
-	for i, j := 0, t.NumField(); i != j; i++ {
-		ft := t.Field(i)
+	for _, f := range s {
+		fv := v.FieldByIndex(f.Index)
 
-		if len(ft.PkgPath) != 0 && !ft.Anonymous { // unexported
-			continue
-		}
-
-		tag := ParseStructField(ft)
-
-		if tag.Skip {
-			continue
-		}
-
-		fv := v.Field(i)
-
-		if tag.Omitempty && isEmptyValue(fv) {
+		if f.Omitempty && isEmptyValue(fv) {
 			continue
 		}
 
@@ -312,7 +301,7 @@ func jsonLenStruct(t reflect.Type, v reflect.Value) (n int, err error) {
 			n++
 		}
 
-		n += jsonLenString(tag.Name) + c + 1
+		n += jsonLenString(f.Name) + c + 1
 	}
 
 	n += 2
