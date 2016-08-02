@@ -11,8 +11,8 @@ func QuoteString(s string) string {
 	return string(Quote([]byte(s)))
 }
 
-// QuoteString takes a byte slice as argument and returns the copy of that
-// slice quoted according to the JSON formatting rules.
+// Quote takes a byte slice as argument and returns the copy of that slice
+// quoted according to the JSON formatting rules.
 func Quote(b []byte) []byte {
 	w := &bytes.Buffer{}
 	w.Grow(len(b) + 12)
