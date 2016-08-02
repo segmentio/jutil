@@ -284,7 +284,7 @@ func jsonLenMap(v reflect.Value) (n int, err error) {
 
 func jsonLenStruct(t reflect.Type, v reflect.Value) (n int, err error) {
 	var c int
-	var s = structCache.Lookup(t)
+	var s = LookupStruct(t)
 
 	for _, f := range s {
 		fv := v.FieldByIndex(f.Index)

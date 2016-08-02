@@ -10,6 +10,17 @@ import (
 // reflection to lookup the same type information over and over again.
 type Struct []StructField
 
+// LookupStruct behaves like MakeStruct but uses a global cache to avoid having
+// to recreate the struct values when not needed.
+//
+// As much as possible you should be using this function instead of calling
+// MakeStruct or maintaining your own cache so the program can efficiently make
+// use of the cache and avoid storing duplicate information in different parts
+// of the program.
+func LookupStruct(t reflect.Type) Struct {
+	return structCache.Lookup(t)
+}
+
 // MakeStruct takes a Go type as argument and extract information to make a new
 // Struct value.
 // The type has to be a struct type or a panic will be raised.
@@ -76,6 +87,7 @@ func NewStructCache() *StructCache {
 
 // Lookup takes a Go type as argument and returns the matching Struct value,
 // potentially creating it if it didn't already exist.
+// This method is safe to call from multiple goroutines.
 func (cache *StructCache) Lookup(t reflect.Type) (s Struct) {
 	cache.mutex.RLock()
 	s = cache.store[t]
