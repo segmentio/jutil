@@ -3,6 +3,7 @@ package jutil
 import (
 	"encoding"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -127,7 +128,12 @@ func jsonLenV(v reflect.Value) (n int, err error) {
 		if v.IsNil() {
 			n = jsonLenNull()
 		} else {
-			n, err = Length(v.Elem().Interface())
+			elem := v.Elem()
+			if !elem.CanInterface() {
+				err = fmt.Errorf("reflect: cannot call Interface on %v", elem)
+				return
+			}
+			n, err = Length(elem.Interface())
 		}
 
 	case reflect.Bool:
@@ -247,7 +253,12 @@ func jsonLenArray(v reflect.Value) (n int, err error) {
 			n++
 		}
 
-		if c, err = Length(v.Index(i).Interface()); err != nil {
+		elem := v.Index(i)
+		if !elem.CanInterface() {
+			err = fmt.Errorf("reflect: cannot call Interface on value %v", elem)
+			return
+		}
+		if c, err = Length(elem.Interface()); err != nil {
 			return
 		}
 
@@ -263,6 +274,11 @@ func jsonLenMap(v reflect.Value) (n int, err error) {
 	var c2 int
 
 	for i, k := range v.MapKeys() {
+		if !k.CanInterface() {
+			err = fmt.Errorf("reflect: cannot call Interface on value %v", k)
+			return
+		}
+
 		if i != 0 {
 			n++
 		}
@@ -293,6 +309,10 @@ func jsonLenStruct(t reflect.Type, v reflect.Value) (n int, err error) {
 			continue
 		}
 
+		if !fv.CanInterface() {
+			err = fmt.Errorf("reflect: cannot call Interface on %v", fv)
+			return
+		}
 		if c, err = Length(fv.Interface()); err != nil {
 			return
 		}
