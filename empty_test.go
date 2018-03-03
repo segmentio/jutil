@@ -21,7 +21,7 @@ func TestIsEmptyTrue(t *testing.T) {
 	}
 }
 
-func TestIsEmptyFale(t *testing.T) {
+func TestIsEmptyFalse(t *testing.T) {
 	tests := []interface{}{
 		true,
 		1,
